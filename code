@@ -1,0 +1,109 @@
+class member_Record {
+protected:
+    int member_id;
+    string type;
+    string date_of_membership;
+    int no_books_issued;
+    int max_book_limit;
+    string name;
+    string address;
+    string phone_no;
+    vector<Book> purchased_books;
+
+public:
+    member_Record(int id, string t, string date, int limit, string n, string addr, string phone)
+        : member_id(id), type(t), date_of_membership(date), no_books_issued(0),
+          max_book_limit(limit), name(n), address(addr), phone_no(phone) {}
+
+    void get_member() {
+        cout << "Member: " << name << ", ID: " << member_id << endl;
+    }
+
+    void inc_book_issued() {
+        if (no_books_issued < max_book_limit)
+            no_books_issued++;
+    }
+
+    void dec_book_issued() {
+        if (no_books_issued > 0)
+            no_books_issued--;
+    }
+
+    void pay_bill() {
+        cout << "Bill paid for member " << name << endl;
+    }
+
+    void purchase_book(Book b) {
+        purchased_books.push_back(b);
+        cout << name << " purchased book: ";
+        b.display();
+    }
+
+    void show_purchased_books() {
+        cout << name << "'s Purchased Books:" << endl;
+        for (int i = 0; i < purchased_books.size(); ++i)
+            purchased_books[i].display();
+    }
+};
+
+class Student : public member_Record {
+    string course;
+    int semester;
+    int penalty_points = 0;
+public:
+    Student(int id, string date, int limit, string n, string addr, string phone, string c, int sem)
+        : member_Record(id, "Student", date, limit, n, addr, phone), course(c), semester(sem) {}
+
+    void get_student_info() {
+        get_member();
+        cout << "Course: " << course << ", Semester: " << semester << endl;
+    }
+
+    void add_penalty(int days_late) {
+        if (days_late > 0) {
+            int penalty = days_late * 2;
+            penalty_points += penalty;
+            cout << name << " returned the book " << days_late << " day(s) late. Penalty: " << penalty << " points. Total: " << penalty_points << endl;
+        } else {
+            cout << name << " returned the book on time. No penalty added." << endl;
+        }
+    }
+
+    int get_penalty() const {
+        return penalty_points;
+    }
+};
+
+class Faculty : public member_Record {
+    string department;
+    string designation;
+public:
+    Faculty(int id, string date, int limit, string n, string addr, string phone, string dept, string desig)
+        : member_Record(id, "Faculty", date, limit, n, addr, phone), department(dept), designation(desig) {}
+
+    void get_faculty_info() {
+        get_member();
+        cout << "Department: " << department << ", Designation: " << designation << endl;
+    }
+};
+
+int main() {
+    Student s1(101, "2023-09-01", 5, "Ali", "123 Street", "03001234567", "Computer Science", 4);
+    cout << "--- Student Info ---" << endl;
+    s1.get_student_info();
+    s1.inc_book_issued();
+    s1.pay_bill();
+    s1.add_penalty(3);
+
+    Faculty f1(201, "2022-03-15", 10, "Sara", "456 Avenue", "03007654321", "Mathematics", "Associate Professor");
+    cout << "\n--- Faculty Info ---" << endl;
+    f1.get_faculty_info();
+    f1.inc_book_issued();
+    f1.pay_bill();
+  
+    s1.purchase_book(b1);
+    s1.purchase_book(b2);
+    s1.show_purchased_books();
+
+    return 0;
+}
