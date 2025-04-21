@@ -1,0 +1,80 @@
+class Library {
+private:
+    vector<Book*> books;
+    vector<Reader*> readers;
+public:
+    Library(const vector<Book*>& initialBooks = {}, const vector<Reader*>& initialReaders = {})
+        : books(initialBooks), readers(initialReaders) {
+    }
+
+    vector<Book*> get_books() { return books; }
+    vector<Reader*> get_reader() { return readers; }
+
+    void new_book(Book* book) {
+        books.push_back(book);
+        cout << book->get_title() << " Added!\n";
+    }
+
+    void lend_book(Book* book, Reader* reader) {
+        reader->borrow_book(book);
+        cout << "Lent book: " << book->get_title() << " to " << reader->get_name() << endl;
+    }
+
+    void take_back_book(Book* book) {
+        book->update_status(true);
+        cout << "Book returned: " << book->get_title() << endl;
+    }
+
+    void show_book() {
+        for (Book* book : books) book->display();
+    }
+};
+
+class Librarian : public Person {
+private:
+    string password;
+public:
+    Librarian(string n, string p) : Person(n), password(p) {
+        cout << "Librarian " << name << " logged in.\n";
+    }
+
+    void search_book(const vector<Book*>& books, const string& title) {
+        for (Book* book : books) {
+            if (book->get_title() == title) {
+                cout << "Book found: ";
+                book->display();
+                return;
+            }
+        }
+        cout << "Book not found.\n";
+    }
+
+    bool verify_member(Reader* reader) {
+        cout << "Verifying reader: " << reader->get_name() << endl;
+        return true;
+    }
+
+    void issue_book(Book* book, Reader* reader) {
+        reader->borrow_book(book);
+        cout << "Book issued to reader: " << reader->get_name() << endl;
+    }
+
+    float calculate_fine(int daysLate) {
+        float fine = daysLate * 1.0f;
+        cout << "Fine: $" << fine << endl;
+        return fine;
+    }
+
+    void create_bill(Reader* reader, float amount) {
+        cout << "Creating bill of $" << amount << " for " << reader->get_name() << endl;
+    }
+
+    void return_book(Book* book, Reader* reader) {
+        reader->return_book(book);
+        cout << "Book returned by " << reader->get_name() << endl;
+    }
+
+    void whoyouare() override {
+        cout << "I am librarian " << name << "\n";
+    }
+};
