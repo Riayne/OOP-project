@@ -2,7 +2,7 @@ class Library {
 private:
     vector<Book*> books;
     vector<Reader*> readers;
-    vector<Librarian*> librarians; // 🔸 Added
+    vector<Librarian*> librarians; 
 
 public:
     Library(const vector<Book*>& initialBooks = {}, const vector<Reader*>& initialReaders = {}, const vector<Librarian*>& initialLibrarians = {})
