@@ -1,0 +1,115 @@
+class LibrarySystem {
+private:
+    vector<Book*> books;
+    vector<Member*> members;
+    Librarian* librarian;
+    bool logged_in;
+
+    // Helper functions
+    Book* find_book(int id) {
+        for (auto book : books) {
+            if (book->get_id() == id) return book;
+        }
+        return nullptr;
+    }
+
+    Member* find_member(int id) {
+        for (auto member : members) {
+            if (member->get_member_id() == id) return member;
+        }
+        return nullptr;
+    }
+
+    void display_books() const {
+        clearScreen();
+        cout << "=== BOOK CATALOG ===" << endl;
+        for (const auto& book : books) {
+            book->display();
+            cout << "--------------------" << endl;
+        }
+    }
+
+    void display_members() const {
+        clearScreen();
+        cout << "=== LIBRARY MEMBERS ===" << endl;
+        for (const auto& member : members) {
+            member->display();
+            cout << "--------------------" << endl;
+        }
+    }
+
+    void librarian_menu() {
+        int choice;
+        do {
+            clearScreen();
+            cout << "=== LIBRARIAN MENU ===" << endl;
+            cout << "1. Add Book\n2. Remove Book\n3. Add Member\n4. Remove Member\n"
+                << "5. Check Out Book\n6. Check In Book\n7. View All Books\n"
+                << "8. View All Members\n9. Search Book\n10. Search Member\n"
+                << "11. Change Password\n0. Logout\n\nEnter choice: ";
+            cin >> choice;
+
+            switch (choice) {
+            case 1: add_book(); break;
+            case 2: remove_book(); break;
+            case 3: add_member(); break;
+            case 4: remove_member(); break;
+            case 5: check_out_book(); break;
+            case 6: check_in_book(); break;
+            case 7: display_books(); pressEnterToContinue(); break;
+            case 8: display_members(); pressEnterToContinue(); break;
+            case 9: search_book(); break;
+            case 10: search_member(); break;
+            case 11: change_password(); break;
+            case 0: logged_in = false; break;
+            default: cout << "Invalid choice!" << endl; pressEnterToContinue();
+            }
+        } while (logged_in);
+    }
+
+    void add_book() {
+        clearScreen();
+        cout << "=== ADD NEW BOOK ===" << endl;
+
+        int id, edition, year;
+        string title, author;
+        float price;
+
+        cout << "Enter Book ID: ";
+        cin >> id;
+        cin.ignore();
+        cout << "Enter Title: ";
+        getline(cin, title);
+        cout << "Enter Author: ";
+        getline(cin, author);
+        cout << "Enter Price: ";
+        cin >> price;
+        cout << "Enter Edition: ";
+        cin >> edition;
+        cout << "Enter Year Published: ";
+        cin >> year;
+
+        books.push_back(new Book(id, author, title, price, edition, year));
+        cout << "\nBook added successfully!" << endl;
+        pressEnterToContinue();
+    }
+
+    void remove_book() {
+        clearScreen();
+        cout << "=== REMOVE BOOK ===" << endl;
+        int id;
+        cout << "Enter Book ID to remove: ";
+        cin >> id;
+
+        for (auto it = books.begin(); it != books.end(); ++it) {
+            if ((*it)->get_id() == id) {
+                delete* it;
+                books.erase(it);
+                cout << "Book removed successfully!" << endl;
+                pressEnterToContinue();
+                return;
+            }
+        }
+        cout << "Book not found!" << endl;
+        pressEnterToContinue();
+    }
