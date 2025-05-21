@@ -531,7 +531,7 @@ private:
             cout << "Passwords don't match!" << endl;
         }
         else {
-            // In a real system, we would update the password here
+            
             cout << "Password changed successfully!" << endl;
         }
         pressEnterToContinue();
@@ -556,10 +556,9 @@ private:
 
 public:
     LibrarySystem() : logged_in(false) {
-        // Initializing with default
+
         librarian = new Librarian("LIB001", "Admin", "Library", "1234567890", "2023-01-01", "admin123");
 
-        // Add some sample data
         books.push_back(new Book(101, "J.K. Rowling", "Harry Potter", 29.99, 1, 1997));
         books.push_back(new Book(102, "George Orwell", "1984", 19.99, 2, 1949));
         books.push_back(new Book(103, "J.R.R. Tolkien", "The Hobbit", 24.99, 3, 1937));
