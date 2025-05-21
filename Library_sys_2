@@ -1,0 +1,306 @@
+class LibrarySystem {
+private:
+    vector<Book*> books;
+    vector<Member*> members;
+    Librarian* librarian;
+    bool logged_in;
+
+
+    void add_member() {
+        clearScreen();
+        cout << "=== ADD NEW MEMBER ===" << endl;
+
+        int type, id, semester;
+        string name, address, phone, date, course, department, position;
+
+        cout << "Member Type (1. Student, 2. Faculty): ";
+        cin >> type;
+        cout << "Enter Member ID: ";
+        cin >> id;
+        cin.ignore();
+        cout << "Enter Name: ";
+        getline(cin, name);
+        cout << "Enter Address: ";
+        getline(cin, address);
+        cout << "Enter Phone: ";
+        getline(cin, phone);
+        cout << "Enter Join Date (YYYY-MM-DD): ";
+        getline(cin, date);
+
+        if (type == 1) {
+            cout << "Enter Course: ";
+            getline(cin, course);
+            cout << "Enter Semester: ";
+            cin >> semester;
+            members.push_back(new Student(id, name, address, phone, date, course, semester));
+        }
+        else {
+            cout << "Enter Department: ";
+            getline(cin, department);
+            cout << "Enter Position: ";
+            getline(cin, position);
+            members.push_back(new Faculty(id, name, address, phone, date, department, position));
+        }
+
+        cout << "\nMember added successfully!" << endl;
+        pressEnterToContinue();
+    }
+
+    void remove_member() {
+        clearScreen();
+        cout << "=== REMOVE MEMBER ===" << endl;
+        int id;
+        cout << "Enter Member ID to remove: ";
+        cin >> id;
+
+        for (auto it = members.begin(); it != members.end(); ++it) {
+            if ((*it)->get_member_id() == id) {
+                // Check if member has any books checked out
+                if (!(*it)->get_borrowed_books().empty()) {
+                    cout << "Cannot remove member with checked out books!" << endl;
+                    pressEnterToContinue();
+                    return;
+                }
+
+                delete* it;
+                members.erase(it);
+                cout << "Member removed successfully!" << endl;
+                pressEnterToContinue();
+                return;
+            }
+        }
+        cout << "Member not found!" << endl;
+        pressEnterToContinue();
+    }
+
+    void check_out_book() {
+        clearScreen();
+        cout << "=== CHECK OUT BOOK ===" << endl;
+        int book_id, member_id;
+
+        cout << "Enter Member ID: ";
+        cin >> member_id;
+        Member* member = find_member(member_id);
+        if (!member) {
+            cout << "Member not found!" << endl;
+            pressEnterToContinue();
+            return;
+        }
+
+        if (!member->can_borrow()) {
+            cout << "Member has reached maximum borrowing limit!" << endl;
+            pressEnterToContinue();
+            return;
+        }
+
+        cout << "Enter Book ID: ";
+        cin >> book_id;
+        Book* book = find_book(book_id);
+        if (!book) {
+            cout << "Book not found!" << endl;
+            pressEnterToContinue();
+            return;
+        }
+
+        if (!book->is_available()) {
+            cout << "Book is already checked out!" << endl;
+            pressEnterToContinue();
+            return;
+        }
+
+        book->check_out();
+        member->borrow_book(book_id);
+        cout << "Book checked out successfully!" << endl;
+        pressEnterToContinue();
+    }
+
+    void check_in_book() {
+        clearScreen();
+        cout << "=== CHECK IN BOOK ===" << endl;
+        int book_id, member_id;
+
+        cout << "Enter Member ID: ";
+        cin >> member_id;
+        Member* member = find_member(member_id);
+        if (!member) {
+            cout << "Member not found!" << endl;
+            pressEnterToContinue();
+            return;
+        }
+
+        cout << "Enter Book ID: ";
+        cin >> book_id;
+        Book* book = find_book(book_id);
+        if (!book) {
+            cout << "Book not found!" << endl;
+            pressEnterToContinue();
+            return;
+        }
+
+        if (book->is_available()) {
+            cout << "Book is not checked out!" << endl;
+            pressEnterToContinue();
+            return;
+        }
+
+        if (!member->return_book(book_id)) {
+            cout << "This member didn't borrow this book!" << endl;
+            pressEnterToContinue();
+            return;
+        }
+
+        book->check_in();
+        cout << "Book checked in successfully!" << endl;
+        pressEnterToContinue();
+    }
+
+    void search_book() {
+        clearScreen();
+        cout << "=== SEARCH BOOK ===" << endl;
+        cout << "Search by:\n1. Title\n2. Author\n3. ID\nEnter choice: ";
+        int choice;
+        cin >> choice;
+        cin.ignore();
+
+        string search_term;
+        cout << "Enter search term: ";
+        getline(cin, search_term);
+
+        bool found = false;
+        for (const auto& book : books) {
+            bool match = false;
+            switch (choice) {
+            case 1: match = book->get_title().find(search_term) != string::npos; break;
+            case 2: match = book->get_author().find(search_term) != string::npos; break;
+            case 3: match = to_string(book->get_id()) == search_term; break;
+            }
+
+            if (match) {
+                book->display();
+                cout << "--------------------" << endl;
+                found = true;
+            }
+        }
+
+        if (!found) {
+            cout << "No books found matching your search." << endl;
+        }
+        pressEnterToContinue();
+    }
+
+    void search_member() {
+        clearScreen();
+        cout << "=== SEARCH MEMBER ===" << endl;
+        cout << "Search by:\n1. Name\n2. ID\nEnter choice: ";
+        int choice;
+        cin >> choice;
+        cin.ignore();
+
+        string search_term;
+        cout << "Enter search term: ";
+        getline(cin, search_term);
+
+        bool found = false;
+        for (const auto& member : members) {
+            bool match = false;
+            switch (choice) {
+            case 1: match = member->get_name().find(search_term) != string::npos; break;
+            case 2: match = to_string(member->get_member_id()) == search_term; break;
+            }
+
+            if (match) {
+                member->display();
+                cout << "--------------------" << endl;
+                found = true;
+            }
+        }
+
+        if (!found) {
+            cout << "No members found matching your search." << endl;
+        }
+        pressEnterToContinue();
+    }
+
+    void change_password() {
+        clearScreen();
+        cout << "=== CHANGE PASSWORD ===" << endl;
+        string current, new_pwd, confirm;
+
+        cout << "Enter current password: ";
+        cin >> current;
+
+        if (!librarian->authenticate(current)) {
+            cout << "Incorrect current password!" << endl;
+            pressEnterToContinue();
+            return;
+        }
+
+        cout << "Enter new password: ";
+        cin >> new_pwd;
+        cout << "Confirm new password: ";
+        cin >> confirm;
+
+        if (new_pwd != confirm) {
+            cout << "Passwords don't match!" << endl;
+        }
+        else {
+            
+            cout << "Password changed successfully!" << endl;
+        }
+        pressEnterToContinue();
+    }
+
+    void login() {
+        clearScreen();
+        cout << "=== LIBRARIAN LOGIN ===" << endl;
+        string password;
+        cout << "Enter password: ";
+        cin >> password;
+
+        if (librarian->authenticate(password)) {
+            logged_in = true;
+            librarian_menu();
+        }
+        else {
+            cout << "Invalid password!" << endl;
+            pressEnterToContinue();
+        }
+    }
+
+public:
+    LibrarySystem() : logged_in(false) {
+
+        librarian = new Librarian("LIB001", "Admin", "Library", "1234567890", "2023-01-01", "admin123");
+
+        books.push_back(new Book(101, "J.K. Rowling", "Harry Potter", 29.99, 1, 1997));
+        books.push_back(new Book(102, "George Orwell", "1984", 19.99, 2, 1949));
+        books.push_back(new Book(103, "J.R.R. Tolkien", "The Hobbit", 24.99, 3, 1937));
+
+        members.push_back(new Student(1001, "Alice Johnson", "123 Main St", "555-1234", "2023-01-15", "Computer Science", 3));
+        members.push_back(new Faculty(2001, "Dr. Smith", "456 Oak Ave", "555-5678", "2020-05-20", "Physics", "Professor"));
+    }
+
+    ~LibrarySystem() {
+        delete librarian;
+        for (auto book : books) delete book;
+        for (auto member : members) delete member;
+    }
+
+    void run() {
+        int choice;
+        do {
+            clearScreen();
+            cout << "=== LIBRARY MANAGEMENT SYSTEM ===" << endl;
+            cout << "1. Librarian Login\n2. View Books\n3. View Members\n0. Exit\n\nEnter choice: ";
+            cin >> choice;
+
+            switch (choice) {
+            case 1: login(); break;
+            case 2: display_books(); pressEnterToContinue(); break;
+            case 3: display_members(); pressEnterToContinue(); break;
+            case 0: cout << "Exiting system..." << endl; break;
+            default: cout << "Invalid choice!" << endl; pressEnterToContinue();
+            }
+        } while (choice != 0);
+    }
+};
