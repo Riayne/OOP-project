@@ -113,3 +113,39 @@ private:
         cout << "Book not found!" << endl;
         pressEnterToContinue();
     }
+    void login() {
+        clearScreen();
+        cout << "=== LIBRARIAN LOGIN ===" << endl;
+        string password;
+        cout << "Enter password: ";
+        cin >> password;
+
+        if (librarian->authenticate(password)) {
+            logged_in = true;
+            librarian_menu();
+        }
+        else {
+            cout << "Invalid password!" << endl;
+            pressEnterToContinue();
+        }
+    }
+
+public:
+    LibrarySystem() : logged_in(false) {
+        // Initializing with default
+        librarian = new Librarian("LIB001", "Admin", "Library", "1234567890", "2023-01-01", "admin123");
+
+        // Add some sample data
+        books.push_back(new Book(101, "J.K. Rowling", "Harry Potter", 29.99, 1, 1997));
+        books.push_back(new Book(102, "George Orwell", "1984", 19.99, 2, 1949));
+        books.push_back(new Book(103, "J.R.R. Tolkien", "The Hobbit", 24.99, 3, 1937));
+
+        members.push_back(new Student(1001, "Alice Johnson", "123 Main St", "555-1234", "2023-01-15", "Computer Science", 3));
+        members.push_back(new Faculty(2001, "Dr. Smith", "456 Oak Ave", "555-5678", "2020-05-20", "Physics", "Professor"));
+    }
+
+    ~LibrarySystem() {
+        delete librarian;
+        for (auto book : books) delete book;
+        for (auto member : members) delete member;
+    }
